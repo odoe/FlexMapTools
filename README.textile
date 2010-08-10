@@ -1,4 +1,4 @@
-ht. MapToolkit: A collection of components and tools for use with the "ESRI Flex API":http://help.arcgis.com/en/webapi/flex/index.html.
+h1. FlexMapTools: A collection of components and tools for use with the "ESRI Flex API":http://help.arcgis.com/en/webapi/flex/index.html.
 
 These are tools I use in my day to day workflow and felt I would share with others.
 
