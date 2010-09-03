@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				dataChange="itemrenderer_dataChangeHandler(event)"
+				removedFromStage="itemrenderer_removedFromStageHandler(event)"
+				autoDrawBackground="true">
+	<fx:Metadata>
+        [Event(name="visibleLayerID", type="org.lacsd.events.LayerInfoDetailsEvent")]
+    </fx:Metadata>
+
+	<fx:Script>
+		<![CDATA[
+			import com.esri.ags.events.ExtentEvent;
+			import com.esri.ags.renderers.ClassBreaksRenderer;
+			import com.esri.ags.renderers.UniqueValueRenderer;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import net.odoe.FlexMapTools.components.events.LayerInfoDetailsEvent;
+			import net.odoe.FlexMapTools.factories.SwatchFactory;
+			
+			protected var isLegendBuilt:Boolean = false;
+			
+			[Bindable]
+			protected var swatchCollection:ArrayCollection;
+			
+			protected function itemrenderer_dataChangeHandler(event:FlexEvent):void {
+				if (data && (data["rend"] && !isLegendBuilt)) {
+					data["map"].addEventListener(ExtentEvent.EXTENT_CHANGE, onMapExtentChange_handler, false, 0, true);
+					var swatches:SwatchFactory = new SwatchFactory();
+					swatchCollection = new ArrayCollection();
+					if (data["rend"] is UniqueValueRenderer || data["rend"] is ClassBreaksRenderer) {
+						var i:uint = 0;
+						var x:uint = data["rend"].infos.length;
+						for (i; i < x; i++) {
+							swatchCollection.addItem(swatches.drawSwatch(data["rend"].infos[i]));
+						}
+					}
+					else {
+						swatchCollection.addItem(swatches.drawSwatch(data["rend"]));
+					}
+					isLegendBuilt = true;
+					verifyScales();
+				}
+			}
+			
+			protected function onMapExtentChange_handler(event:ExtentEvent):void {
+				verifyScales();
+			}
+			// this method was derived from the Dynamic Legend Widget for Flex Viewer 2.0
+			// by Robert Scheitlin
+			// http://www.arcgis.com/home/item.html?id=f60406b9f52340d59eb557bf64136af6
+			protected function verifyScales():void {
+				if (data["maxScale"] == 0 && data["minScale"] == 0) {
+					bckGrnd.alpha = 0;
+				}
+				else if ((data["minScale"] == 0 || data["map"].scale <= data["minScale"]) &&
+					data["map"].scale >= data["maxScale"]) {
+					bckGrnd.alpha = 0;
+				}
+				else {
+					bckGrnd.alpha = 0.8;
+				}
+			}
+			
+			
+			protected function onCheckBoxClicked_handler(e:MouseEvent):void {
+				var v:Boolean = e.currentTarget.selected;
+				var d:int = int(data["layerInfo"].id);
+				dispatchEvent(new LayerInfoDetailsEvent(LayerInfoDetailsEvent.VISIBLE_LAYER_ID, d, v));
+			}
+			
+			protected function itemrenderer_removedFromStageHandler(event:Event):void {
+				data["map"].removeEventListener(ExtentEvent.EXTENT_CHANGE, onMapExtentChange_handler);
+				delete data["map"];
+				delete data["layerID"];
+				delete data["layerInfo"];
+				delete data["rend"];
+				delete data["maxScale"];
+				delete data["minScale"];
+				data = null;
+				swatchCollection = null;
+			}
+		]]>
+	</fx:Script>
+	<s:Rect bottom="0"
+			left="0"
+			right="0"
+			top="0">
+		<s:fill>
+			<s:SolidColor alpha="1"
+						  color="0xffffff" />
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color="0xA9A9A9"
+								weight="1" />
+		</s:stroke>
+	</s:Rect>
+	<s:Group width="100%">
+		<s:CheckBox left="2"
+					selected="{data.layerInfo.defaultVisibility}"
+					label="{data.layerInfo.name}"
+					click="onCheckBoxClicked_handler(event)" />
+		<s:Group y="20"
+				 x="2"
+				 minHeight="0"
+				 width="100%">
+			<s:Scroller height="100%"
+						width="100%">
+				<s:DataGroup dataProvider="{swatchCollection}"
+							 itemRenderer="net.odoe.FlexMapTools.components.itemRenderers.SwatchItemRenderer">
+					<s:layout>
+						<s:VerticalLayout gap="2"
+										  horizontalAlign="left"
+										  verticalAlign="middle" />
+					</s:layout>
+				</s:DataGroup>
+			</s:Scroller>
+		</s:Group>
+	</s:Group>
+	<s:Rect bottom="0"
+			left="0"
+			right="0"
+			top="0">
+		<s:fill>
+			<s:SolidColor id="bckGrnd"
+						  alpha="0"
+						  color="0xffffff" />
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color="0xA9A9A9"
+								weight="1" />
+		</s:stroke>
+	</s:Rect>
+</s:ItemRenderer>

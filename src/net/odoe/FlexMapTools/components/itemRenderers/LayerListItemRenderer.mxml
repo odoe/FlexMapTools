@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="true"
+				xmlns:components="org.lacsd.components.*"
+				width="150"
+				minHeight="35">
+	<fx:Metadata>
+        [Event(name="layerDetailsRemoved", type="flash.events.Event")]
+    </fx:Metadata>
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="hovered" />
+		<s:State name="selected" />
+	</s:states>
+	<s:Rect left="0"
+			right="0"
+			top="0"
+			bottom="0">
+		<s:fill>
+			<s:SolidColor color="#F0F8FF"
+						  alpha="0.6" />
+		</s:fill>
+	</s:Rect>
+	<s:Rect left="0"
+			right="0"
+			top="0"
+			bottom="0">
+		<s:fill>
+			<s:SolidColor color="#F0FFFF"
+						  alpha="0.6" />
+		</s:fill>
+	</s:Rect>
+	<s:Group id="vGroup"
+			 left="0"
+			 right="0"
+			 top="0"
+			 bottom="0"
+			 width="100%">
+		<s:layout>
+			<s:VerticalLayout gap="2"
+							  paddingBottom="2"
+							  paddingLeft="2"
+							  paddingRight="2"
+							  paddingTop="2" />
+		</s:layout>
+		<s:CheckBox left="0"
+					selected="{data.visible}"
+					label="{data.id}"
+					click="onCheckBoxClicked_handler(event)" />
+
+		<s:HSlider width="100%"
+				   value="{data.alpha}"
+				   minimum="0"
+				   maximum="1"
+				   snapInterval="0"
+				   change="onAlphaChanged(event)" />
+	</s:Group>
+
+	<fx:Script>
+		<![CDATA[
+			
+			protected function onAlphaChanged(e:Event):void {
+				data.alpha = e.currentTarget.value;
+			}
+			
+			protected function onCheckBoxClicked_handler(e:MouseEvent):void {
+				data.visible = e.currentTarget.selected;
+			}
+		]]>
+	</fx:Script>
+</s:ItemRenderer>

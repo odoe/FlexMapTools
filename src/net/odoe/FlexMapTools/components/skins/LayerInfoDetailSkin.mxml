@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+        [HostComponent("net.odoe.FlexMapTools.components.LayerInfoDetails")]
+    </fx:Metadata>
+	<!-- SkinParts
+		 name=layerControl, type=spark.components.CheckBox, required=true
+	-->
+	<s:Group height="100%"
+			 width="100%">
+		<s:Scroller height="100%"
+					width="100%">
+			<s:DataGroup id="layerControl"
+						 itemRenderer="net.odoe.FlexMapTools.components.itemRenderers.LayerInfoDetailItemRenderer">
+				<s:layout>
+					<s:VerticalLayout gap="2"
+									  horizontalAlign="justify" />
+				</s:layout>
+			</s:DataGroup>
+		</s:Scroller>
+	</s:Group>
+</s:Skin>

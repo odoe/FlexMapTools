@@ -22,10 +22,10 @@ import flash.utils.getQualifiedClassName;
 import mx.collections.ArrayCollection;
 import mx.collections.IList;
 import mx.logging.ILogger;
-import mx.logging.Log;
 import mx.rpc.AsyncResponder;
 
 import net.odoe.FlexMapTools.utils.LayerUtil;
+import net.odoe.FlexMapTools.utils.LogUtil;
 
 import spark.components.Button;
 import spark.components.ComboBox;
@@ -39,7 +39,7 @@ import spark.events.DropDownEvent;
  */
 public class IdentifyTool extends SkinnableComponent implements IIdentifyTool {
 
-    private static const logger:ILogger = Log.getLogger(getQualifiedClassName(this));
+    protected static const logger:ILogger = LogUtil.getLogger(IdentifyTool);
 
     /**
      * Constructor
