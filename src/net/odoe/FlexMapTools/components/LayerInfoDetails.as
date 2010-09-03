@@ -62,7 +62,7 @@ package net.odoe.FlexMapTools.components {
 		 */
 		protected function cleanLayerInfos(layerInfo:LayerInfo):void {
 			var ac:ArrayCollection = (_layer as ArcGISDynamicMapServiceLayer).visibleLayers;
-			layerInfo.defaultVisibility = ac.contains(String(layerInfo.id));
+			layerInfo.defaultVisibility = ac.contains(layerInfo.id);
 		}
 		
 		/**
@@ -84,8 +84,8 @@ package net.odoe.FlexMapTools.components {
 					trace("layer name = "+ layerInfo.name + " , layer defaultVisibility = " + layerInfo.defaultVisibility);
 					// You may need to use this function in your application
 					// if you define visible layers differently
-					/*if (_layer is ArcGISDynamicMapServiceLayer)
-						this.cleanLayerInfos(layerInfo);*/
+					if (_layer is ArcGISDynamicMapServiceLayer)
+						this.cleanLayerInfos(layerInfo);
 					var info:LayerData = new LayerData();
 					info.map = _layer.map;
 					info.layerID = layerInfo.id;
