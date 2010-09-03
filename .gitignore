@@ -4,6 +4,7 @@
 /bin-debug/*
 /launch/*
 /docs/*
+/bin/*
 /libs/*
 obj/*
 
