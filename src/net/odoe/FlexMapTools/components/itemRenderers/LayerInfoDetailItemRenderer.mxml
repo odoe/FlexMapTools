@@ -49,9 +49,7 @@
 			protected function onMapExtentChange_handler(event:ExtentEvent):void {
 				verifyScales();
 			}
-			// this method was derived from the Dynamic Legend Widget for Flex Viewer 2.0
-			// by Robert Scheitlin
-			// http://www.arcgis.com/home/item.html?id=f60406b9f52340d59eb557bf64136af6
+			
 			protected function verifyScales():void {
 				if (data["maxScale"] == 0 && data["minScale"] == 0) {
 					bckGrnd.alpha = 0;
