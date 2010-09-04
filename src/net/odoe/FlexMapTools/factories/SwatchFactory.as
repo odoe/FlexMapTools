@@ -32,9 +32,8 @@ public class SwatchFactory {
 	// by Robert Scheitlin. Thanks for doing the leg work on build symbology from
 	// LayerDetails information
 	// http://www.arcgis.com/home/item.html?id=f60406b9f52340d59eb557bf64136af6
-	public function drawSwatch(rend:*):Legend {
-		var legendSwatch:Object = {};
-		var legend:Legend = new Legend();
+	public function drawSwatch(rend:*):Swatch {
+		var swatch:Swatch = new Swatch();
 		var uic:UIComponent;
 		logger.debug("draw swatch based on symbol: {0}", rend.symbol);
 		if (rend.symbol is SimpleMarkerSymbol) {
@@ -127,18 +126,18 @@ public class SwatchFactory {
 				}
 				);
 			_loader.loadBytes(rend.symbol.source, lc);
-			legend.bmp = bmp;
+			swatch.bmp = bmp;
 		}
 		else {
 			logger.fatal("no symbology defined for given renderer: {0}", rend);
 		}
-		legend.uic = uic;
+		swatch.uic = uic;
 		if (rend.label)
-			legend.description = rend.label;
+			swatch.description = rend.label;
 		else
-			legend.description = "";
+			swatch.description = "";
 		
-		return legend;
+		return swatch;
 	}
 }
 }
@@ -146,7 +145,7 @@ import mx.core.UIComponent;
 
 import spark.primitives.BitmapImage;
 
-internal class Legend {
+internal class Swatch {
 	public var uic:UIComponent;
 	public var bmp:BitmapImage;
 	public var description:String;
