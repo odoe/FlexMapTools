@@ -33,6 +33,8 @@ package net.odoe.FlexMapTools.components {
 		public namespace sitemapNS = "http://www.sitemaps.org/schemas/sitemap/0.9";
 		
 		protected static const logger:ILogger = LogUtil.getLogger(ServiceList);
+		protected static const DYNAMIC:uint = 0;
+		protected static const TILED:uint = 1;
 		
 		/**
 		 * Constructor
@@ -81,6 +83,24 @@ package net.odoe.FlexMapTools.components {
 				}
 			}
 			
+			if (item.type == DYNAMIC) {
+				var dLayer:ArcGISDynamicMapServiceLayer = new ArcGISDynamicMapServiceLayer();
+				dLayer.url = item.url;
+				_map.addLayer(dLayer);
+			}
+			else {
+				var tLayer:ArcGISTiledMapServiceLayer = new ArcGISTiledMapServiceLayer();
+				tLayer.url = item.url;
+				_map.addLayer(tLayer);
+			}
+		}
+		
+		/**
+		 * Parses <code>ServiceItem</code> object url to find layer details
+		 * in service REST.
+		 * @param item
+		 */
+		protected function findServiceDetails(item:ServiceItem):void {
 			var jsonurl:String = "?f=json&pretty=false";
 			var url:String = item.url + jsonurl;
 			
@@ -88,22 +108,19 @@ package net.odoe.FlexMapTools.components {
 			srv.url = url;
 			srv.resultFormat = "text";
 			var token:AsyncToken = srv.send();
-			token.addResponder(new Responder(onJSONResult_handler, onFault_handler));
+			token.addResponder(new mx.rpc.Responder(onJSONResult_handler, onFault_handler));
 			
 			function onJSONResult_handler(event:ResultEvent):void {
 				var data:String = event.result.toString();
-				data = data.replace( /\s/g, '' );
+				// this regex replace can be used to make parsing the JSON faster.
+				// It removes spaces, but it will mess up service description.
+				//data = data.replace( /\s/g, '' );
 				var details:Object = JSON.decode(data);
-				if (!details["singleFusedMapCache"]) {
-					var dLayer:ArcGISDynamicMapServiceLayer = new ArcGISDynamicMapServiceLayer();
-					dLayer.url = item.url;
-					_map.addLayer(dLayer);
-				}
-				else {
-					var tLayer:ArcGISTiledMapServiceLayer = new ArcGISTiledMapServiceLayer();
-					tLayer.url = item.url;
-					_map.addLayer(tLayer);	
-				}
+				item.description = details["serviceDescription"];
+				if (!details["singleFusedMapCache"])
+					item.type = DYNAMIC;
+				else
+					item.type = TILED;
 			}
 		}
 		
@@ -169,10 +186,11 @@ package net.odoe.FlexMapTools.components {
 				var i:uint = tmp.length;
 				if (tmp[i-1] == "MapServer") {
 					var item:ServiceItem = new ServiceItem();
-					item.type = tmp[i-1];
+					item.serverType = tmp[i-1];
 					item.name = tmp[i-2];
 					item.url = url;
 					list.push(item);
+					findServiceDetails(item);
 				}
 			}
 			list.sortOn("name");
@@ -200,12 +218,12 @@ package net.odoe.FlexMapTools.components {
 		/**
 		 * Takes URL for a ArcGIS Server Rest directory and
 		 * will attempt to extract the SiteMap.
-		 * @param directory
+		 * @param servername
 		 */
-		public function loadServices(directory:String):void {
+		public function loadServices(servername:String):void {
 			var service:HTTPService = new HTTPService();
-			var sitemap:String = "/?f=sitemap";
-			var url:String = directory + sitemap;
+			var sitemap:String = "/ArcGIS/rest/services/?f=sitemap";
+			var url:String = "http://" + servername + sitemap;
 			service.url = url;
 			service.resultFormat = "e4x";
 			var token:AsyncToken = service.send();
@@ -229,7 +247,9 @@ package net.odoe.FlexMapTools.components {
 import flash.events.EventDispatcher;
 [Bindable]
 internal class ServiceItem extends EventDispatcher {
+	public var description:String;
 	public var name:String;
-	public var type:String;
+	public var serverType:String;
+	public var type:uint;
 	public var url:String;
 }
