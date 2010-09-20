@@ -1,6 +1,7 @@
 package net.odoe.FlexMapTools.utils {
 import com.esri.ags.FeatureSet;
 import com.esri.ags.Graphic;
+import com.esri.ags.Map;
 import com.esri.ags.geometry.Extent;
 import com.esri.ags.geometry.Geometry;
 import com.esri.ags.geometry.MapPoint;
@@ -66,7 +67,67 @@ public class LayerUtil {
 
         return infos;
     }
-
+	
+	public static function findLayerInfos(target:Layer):ArrayCollection {
+		var layerInfos:Array;
+		var infos:ArrayCollection = new ArrayCollection();
+		if (target is ArcGISDynamicMapServiceLayer)
+			layerInfos = ArcGISDynamicMapServiceLayer(target).layerInfos;
+			/*else if (target is ArcGISTiledMapServiceLayer)
+			layerInfos = ArcGISTiledMapServiceLayer(target).layerInfos;*/
+		
+		if (layerInfos) {
+			var rootLayers:Array = findRootLayers(layerInfos);
+			for each (var layerInfo:LayerInfo in rootLayers) {
+				cleanLayerInfos(layerInfo);
+				infos.addItem(layerInfo);
+			}
+		}
+		
+		function cleanLayerInfos(layerInfo:LayerInfo):void {
+			var ac:ArrayCollection = (target as ArcGISDynamicMapServiceLayer).visibleLayers;
+			layerInfo.defaultVisibility = ac.contains(String(layerInfo.id));
+		}
+		
+		function findRootLayers(layerInfos:Array):Array {
+			var roots:Array = [];
+			for each (var layerInfo:LayerInfo in layerInfos) {
+				// ArcGIS: parentLayerId is -1
+				// ArcIMS: parentLayerId is NaN
+				if (isNaN(layerInfo.parentLayerId) || layerInfo.parentLayerId == -1) {
+					roots.push(layerInfo);
+				}
+			}
+			return roots;
+		}
+		return infos;
+	}
+	
+	public static function findMapLayersInfos(map:Map):ArrayCollection {
+		var details:ArrayCollection = new ArrayCollection();
+		var temp:ArrayCollection = new ArrayCollection();
+		var l:Layer;
+		for each (l in map.layers) {
+			temp = findLayerInfos(l);
+			details = new ArrayCollection(details.toArray().concat(temp.toArray()));
+		}
+		return details;
+	}
+	
+	public static function findURLByLayerName(name:String, map:Map):String {
+		for each (var lyr:Layer in map.layers) {
+			if (lyr is ArcGISDynamicMapServiceLayer) {
+				var ac:ArrayCollection = findLayerInfos(lyr);
+				var info:LayerInfo;
+				for each (info in ac) {
+					if (info.name == name)
+						return ArcGISDynamicMapServiceLayer(lyr).url;
+				}
+			}
+		}
+		return "";
+	}
+	
     public static function loadGraphicsFromFeatureSet(graphicsLayer:GraphicsLayer, featureSet:FeatureSet, addGraphicHighlight:Boolean = false):void {
         graphicsLayer.graphicProvider = featureSet.features;
         graphicsLayer.renderer = new DefaultGraphicRenderer();
